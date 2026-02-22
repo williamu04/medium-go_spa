@@ -1,57 +1,55 @@
 package seeder
 
 import (
-	"github.com/go-faker/faker/v4"
+	"math/rand"
+
 	"github.com/williamu04/medium-clone/domain/model"
 	"github.com/williamu04/medium-clone/pkg"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type TopicDataSeeder struct {
-	count  int
-	sluger *pkg.Sluger
-	db     *gorm.DB
-	logger *pkg.Logger
+	count    int
+	sluger   *pkg.Sluger
+	db       *gorm.DB
+	logger   *pkg.Logger
+	randomer *pkg.Randomer
 }
 
-func NewTopicDataSeeder(count int, sluger *pkg.Sluger, db *gorm.DB, logger *pkg.Logger) *TopicDataSeeder {
+func NewTopicDataSeeder(count int, sluger *pkg.Sluger, db *gorm.DB, logger *pkg.Logger, randomer *pkg.Randomer) *TopicDataSeeder {
 	return &TopicDataSeeder{
-		count:  count,
-		sluger: sluger,
-		db:     db,
-		logger: logger,
+		count:    count,
+		sluger:   sluger,
+		db:       db,
+		logger:   logger,
+		randomer: randomer,
 	}
 }
 
 func (s *TopicDataSeeder) Seed() error {
 	session := s.db.Session(&gorm.Session{
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
 
-	topics := []string{
-		"Technology", "Science", "Health", "Business", "Politics",
-		"Entertainment", "Sports", "Travel", "Food", "Fashion",
-		"Education", "Environment", "Finance", "Gaming", "Music",
-		"Art", "Photography", "Programming", "AI", "Blockchain",
-	}
-
 	for i := range s.count {
-		fakeTopic := cases.Title(language.Und).String(faker.Word())
-		topic := &model.TopicModel{
+		fakeTopic := cases.Title(language.Und).String(s.randomer.RandomWord(rand.Intn(3) + 5))
+		topic := &model.Topic{
 			// Topic: topics[i],
 			Topic: fakeTopic,
 			Slug:  s.sluger.Slug(fakeTopic),
 		}
 
-		if err := session.Omit("ArticleModel").Create(topic).Error; err != nil {
+		if err := session.Omit("Article").Create(topic).Error; err != nil {
 			s.logger.Errorf("Create topic %d failed: %v", i, err)
 			continue
 		}
 		//		s.logger.Infof("Created topic %d: %s (ID=%d)", i, topic.Topic, topic.ID)
 	}
 
-	s.logger.Infof("✓ Seeded %d topics", min(s.count, len(topics)))
+	s.logger.Infof("✓ Seeded %d topics", s.count)
 	return nil
 }

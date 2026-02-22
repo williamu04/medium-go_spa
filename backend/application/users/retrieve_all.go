@@ -37,11 +37,12 @@ func (uc *RetrieveAllUsersUseCase) Execute(ctx context.Context, filter map[strin
 	}, nil
 }
 
-func mapUsersToOutputs(users []*model.UserModel) []RetrieveUserOutput {
+func mapUsersToOutputs(users []*model.User) []RetrieveUserOutput {
 	outputs := make([]RetrieveUserOutput, len(users))
 	for i, user := range users {
 		outputs[i] = RetrieveUserOutput{
 			ID:       user.ID,
+			Name:     user.Name,
 			Email:    user.Email,
 			Username: user.Username,
 			Bio:      user.Bio,

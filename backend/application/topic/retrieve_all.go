@@ -40,7 +40,7 @@ func (uc *RetrieveAllTopicUseCase) Execute(ctx context.Context, slugs []string) 
 	}, nil
 }
 
-func mapTopicsToOutputs(topics []*model.TopicModel) []RetrieveTopicOutput {
+func mapTopicsToOutputs(topics []*model.Topic) []RetrieveTopicOutput {
 	outputs := make([]RetrieveTopicOutput, len(topics))
 
 	for i, topic := range topics {

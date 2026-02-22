@@ -3,12 +3,12 @@ package model
 import "gorm.io/gorm"
 
 func DropAll(db *gorm.DB) {
-	db.Migrator().DropTable(&UserModel{})
-	db.Migrator().DropTable(&TopicModel{})
-	db.Migrator().DropTable(&ArticleModel{})
-	db.Migrator().DropTable(&CommentModel{})
-	db.Migrator().DropTable(&BookmarkModel{})
-	db.Migrator().DropTable(&FollowModel{})
+	db.Migrator().DropTable(&User{})
+	db.Migrator().DropTable(&Topic{})
+	db.Migrator().DropTable(&Article{})
+	db.Migrator().DropTable(&Comment{})
+	db.Migrator().DropTable(&Bookmark{})
+	db.Migrator().DropTable(&Follow{})
 }
 
 func DropAllQuery(db *gorm.DB) {

@@ -35,7 +35,7 @@ func (uc *RetrieveAllCommentUseCase) Execute(ctx context.Context, filter map[str
 	}, nil
 }
 
-func mapCommentsToOutputs(comments []*model.CommentModel) []RetrieveCommentOutput {
+func mapCommentsToOutputs(comments []*model.Comment) []RetrieveCommentOutput {
 	outputs := make([]RetrieveCommentOutput, len(comments))
 
 	for i, comment := range comments {

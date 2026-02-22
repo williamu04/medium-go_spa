@@ -13,17 +13,20 @@ type RegistrationUseCase struct {
 	repository     repository.UserRepository
 	passwordHasher pkg.Hasher
 	tokenGenerator pkg.JWTGen
+	sluger         pkg.Sluger
 }
 
-func NewRegistrationUseCase(repository repository.UserRepository, passwordHasher pkg.Hasher, tokenGenerator pkg.JWTGen) *RegistrationUseCase {
+func NewRegistrationUseCase(repository repository.UserRepository, passwordHasher pkg.Hasher, tokenGenerator pkg.JWTGen, sluger pkg.Sluger) *RegistrationUseCase {
 	return &RegistrationUseCase{
 		repository:     repository,
 		passwordHasher: passwordHasher,
 		tokenGenerator: tokenGenerator,
+		sluger:         sluger,
 	}
 }
 
 type RegistrationInput struct {
+	Name     string
 	Email    string
 	Username string
 	Password string
@@ -33,6 +36,8 @@ type RegistrationInput struct {
 
 type RegistrationOutput struct {
 	ID       uint
+	Name     string
+	Slug     string
 	Email    string
 	Username string
 	Password string
@@ -45,7 +50,8 @@ func (uc *RegistrationUseCase) Execute(ctx context.Context, input *RegistrationI
 	if input.Email == "" || input.Username == "" || input.Password == "" {
 		return nil, domain.ErrMissingFields
 	}
-	user := &model.UserModel{
+	user := &model.User{
+		Name:     input.Name,
 		Email:    input.Email,
 		Username: input.Username,
 		Bio:      input.Bio,
@@ -71,23 +77,24 @@ func (uc *RegistrationUseCase) Execute(ctx context.Context, input *RegistrationI
 	}
 
 	hashedPassword, err := uc.passwordHasher.Hash(input.Password)
-
 	if err != nil {
 		return nil, domain.ErrInternalError
 	}
 
 	user.PasswordHash = hashedPassword
+	user.Slug = uc.sluger.Slug(input.Name)
 
 	err = uc.repository.SaveOneUser(ctx, user)
 
 	token, err := uc.tokenGenerator.Generate(user.ID, user.Email)
-
 	if err != nil {
 		return nil, domain.ErrInternalError
 	}
 
 	return &RegistrationOutput{
 		ID:       user.ID,
+		Name:     user.Name,
+		Slug:     user.Slug,
 		Email:    user.Email,
 		Username: user.Username,
 		Bio:      user.Bio,

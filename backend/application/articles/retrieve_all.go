@@ -36,7 +36,7 @@ func (uc *RetrieveAllArticleUseCase) Execute(ctx context.Context, filter map[str
 	}, nil
 }
 
-func mapArticlesToOutputs(articles []*model.ArticleModel) []RetrieveArticleOutput {
+func mapArticlesToOutputs(articles []*model.Article) []RetrieveArticleOutput {
 	outputs := make([]RetrieveArticleOutput, len(articles))
 
 	for i, article := range articles {

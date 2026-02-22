@@ -7,8 +7,8 @@ import (
 )
 
 type FollowRepository interface {
-	SaveOneFollow(ctx context.Context, Follow *model.FollowModel) error
-	FindOneFollow(ctx context.Context, filter map[string]any) (*model.FollowModel, error)
-	FindAllFollows(ctx context.Context, filter map[string]any) ([]*model.FollowModel, error)
+	SaveOneFollow(ctx context.Context, Follow *model.Follow) error
+	FindOneFollow(ctx context.Context, filter map[string]any) (*model.Follow, error)
+	FindAllFollows(ctx context.Context, filter map[string]any) ([]*model.Follow, error)
 	DeleteFollow(ctx context.Context, id uint) error
 }

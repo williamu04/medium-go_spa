@@ -54,9 +54,10 @@ func main() {
 	passwordHasher := pkg.NewHasher()
 	tokenGenerator, err := pkg.NewJWTGen(config.JWTSecret, config.JWTExpiry)
 	sluger := pkg.NewSluger()
+	randomer := pkg.NewRandomer()
 
 	if config.SeedData == "true" {
-		dataSeedHandler := seeder.NewSeedHandler(db, log, passwordHasher, sluger)
+		dataSeedHandler := seeder.NewSeedHandler(db, log, passwordHasher, sluger, randomer)
 		if err := dataSeedHandler.SeedAll(); err != nil {
 			log.Errorf("Error seeding data: %v", err)
 		}
@@ -74,8 +75,8 @@ func main() {
 		panic(err)
 	}
 
-	userUseCase := userapplication.NewUserUseCase(userRepository, passwordHasher, tokenGenerator)
-	articleUseCase := articleapplication.NewArticleUseCase(articleRepository, topicRepository, sluger)
+	userUseCase := userapplication.NewUserUseCase(userRepository, passwordHasher, tokenGenerator, sluger)
+	articleUseCase := articleapplication.NewArticleUseCase(articleRepository, topicRepository, userRepository, commentRepository, bookmarkRepository, sluger)
 	topicUseCase := topicapplication.NewTopicUseCase(topicRepository, sluger)
 	commentUseCase := commentapplication.NewCommentUseCase(commentRepository)
 	bookmarkUseCase := bookmarkapplication.NewBookmarkUseCase(bookmarkRepository)

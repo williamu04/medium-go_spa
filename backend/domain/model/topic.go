@@ -2,9 +2,9 @@ package model
 
 import "gorm.io/gorm"
 
-type TopicModel struct {
+type Topic struct {
 	gorm.Model
-	Slug         string `gorm:"uniqueIndex"`
-	Topic        string
-	ArticleModel []*ArticleModel `gorm:"many2many:article_topics;"`
+	Slug     string `gorm:"uniqueIndex"`
+	Topic    string
+	Articles []*Article `gorm:"many2many:article_topics;"`
 }

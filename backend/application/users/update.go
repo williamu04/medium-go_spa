@@ -5,19 +5,23 @@ import (
 
 	"github.com/williamu04/medium-clone/domain"
 	"github.com/williamu04/medium-clone/domain/repository"
+	"github.com/williamu04/medium-clone/pkg"
 )
 
 type UpdateUserUseCase struct {
 	repository repository.UserRepository
+	sluger     pkg.Sluger
 }
 
-func NewUpdateUserUseCase(repository repository.UserRepository) *UpdateUserUseCase {
+func NewUpdateUserUseCase(repository repository.UserRepository, sluger pkg.Sluger) *UpdateUserUseCase {
 	return &UpdateUserUseCase{
 		repository: repository,
+		sluger:     sluger,
 	}
 }
 
 type UpdateInput struct {
+	Name     string
 	Email    string
 	Username string
 	Bio      string
@@ -38,9 +42,15 @@ func (uc *UpdateUserUseCase) Execute(ctx context.Context, input *UpdateInput, ID
 		return domain.ErrUserNotFound
 	}
 
+	if input.Name != "" {
+		user.Name = input.Name
+		user.Slug = uc.sluger.Slug(input.Name)
+	}
+
 	if input.Email != "" {
 		user.Email = input.Email
 	}
+
 	if input.Username != "" {
 		user.Username = input.Username
 	}
@@ -52,5 +62,4 @@ func (uc *UpdateUserUseCase) Execute(ctx context.Context, input *UpdateInput, ID
 	}
 
 	return uc.repository.UpdateUser(ctx, user, ID)
-
 }

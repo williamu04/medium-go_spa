@@ -27,7 +27,7 @@ type CreateFollowOutput struct {
 }
 
 func (uc *CreateFollowUseCase) Execute(ctx context.Context, input *CreateFollowInput) (*CreateFollowOutput, error) {
-	follow := &model.FollowModel{
+	follow := &model.Follow{
 		FollowingID:  input.FollowingID,
 		FollowedByID: input.FollowedByID,
 	}

@@ -1,11 +1,14 @@
 package seeder
 
 import (
+	"fmt"
 	"math/rand"
 
 	"github.com/williamu04/medium-clone/domain/model"
 	"github.com/williamu04/medium-clone/pkg"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
+	"gorm.io/gorm/logger"
 )
 
 type BookmarkDataSeeder struct {
@@ -23,45 +26,40 @@ func NewBookmarkDataSeeder(count int, db *gorm.DB, logger *pkg.Logger) *Bookmark
 }
 
 func (s *BookmarkDataSeeder) Seed() error {
-	var users []model.UserModel
-	var articles []model.ArticleModel
+	var users []model.User
+	var articles []model.Article
 
 	if err := s.db.Select("id").Find(&users).Error; err != nil {
-		s.logger.Errorf("failed to fetch users: %v", err)
 		return err
 	}
 	if err := s.db.Select("id").Find(&articles).Error; err != nil {
-		s.logger.Errorf("failed to fetch articles: %v", err)
 		return err
 	}
 
 	if len(users) == 0 || len(articles) == 0 {
-		s.logger.Errorf("insufficient data: users=%d, articles=%d", len(users), len(articles))
+		return fmt.Errorf("insufficient data: users=%d articles=%d",
+			len(users), len(articles))
 	}
 
 	session := s.db.Session(&gorm.Session{
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
 
-	created := 0
-	attempts := 0
-	maxAttempts := s.count * 3 // Avoid infinite loop on duplicates
+	bookmarks := make([]*model.Bookmark, 0, s.count)
 
-	for created < s.count && attempts < maxAttempts {
-		attempts++
-		bookmark := &model.BookmarkModel{
+	for i := 0; i < s.count; i++ {
+		bookmarks = append(bookmarks, &model.Bookmark{
 			UserID:    users[rand.Intn(len(users))].ID,
 			ArticleID: articles[rand.Intn(len(articles))].ID,
-		}
-
-		if err := session.Omit("User", "Article").Create(bookmark).Error; err != nil {
-			// Skip duplicates silently
-			continue
-		}
-		created++
-		//		s.logger.Infof("Created bookmark %d (ID=%d)", created, bookmark.ID)
+		})
 	}
 
-	s.logger.Infof("✓ Seeded %d bookmarks", created)
+	if err := session.Clauses(clause.OnConflict{DoNothing: true}).CreateInBatches(bookmarks, 1000).Error; err != nil {
+		return err
+	}
+
+	s.logger.Infof("✓ Seeded up to %d bookmarks (duplicates ignored)", s.count)
+
 	return nil
 }

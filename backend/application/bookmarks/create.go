@@ -27,7 +27,7 @@ type CreateBookmarkOutput struct {
 }
 
 func (uc *CreateBookmarkUseCase) Execute(ctx context.Context, input *CreateBookmarkInput) (*CreateBookmarkOutput, error) {
-	bookmark := &model.BookmarkModel{
+	bookmark := &model.Bookmark{
 		ArticleID: input.ArticleID,
 		UserID:    input.UserID,
 	}

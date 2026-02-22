@@ -7,6 +7,7 @@ import (
 	"github.com/williamu04/medium-clone/domain/model"
 	"github.com/williamu04/medium-clone/pkg"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type CommentDataSeeder struct {
@@ -24,13 +25,14 @@ func NewCommentDataSeeder(count int, db *gorm.DB, logger *pkg.Logger) *CommentDa
 }
 
 func (s *CommentDataSeeder) Seed() error {
-	var users []model.UserModel
-	var articles []model.ArticleModel
+	var users []model.User
+	var articles []model.Article
 
 	if err := s.db.Select("id").Find(&users).Error; err != nil {
 		s.logger.Errorf("failed to fetch users: %v", err)
 		return err
 	}
+
 	if err := s.db.Select("id").Find(&articles).Error; err != nil {
 		s.logger.Errorf("failed to fetch articles: %v", err)
 		return err
@@ -42,20 +44,21 @@ func (s *CommentDataSeeder) Seed() error {
 
 	session := s.db.Session(&gorm.Session{
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
 
-	for i := range s.count {
-		comment := &model.CommentModel{
+	comments := make([]*model.Comment, 0, s.count)
+
+	for range s.count {
+		comments = append(comments, &model.Comment{
 			Body:      faker.Paragraph(),
 			ArticleID: articles[rand.Intn(len(articles))].ID,
 			AuthorID:  users[rand.Intn(len(users))].ID,
-		}
+		})
+	}
 
-		if err := session.Omit("Article", "Author").Create(comment).Error; err != nil {
-			s.logger.Errorf("Create comment %d failed: %v", i, err)
-			continue
-		}
-		// s.logger.Infof("Created comment %d (ID=%d)", i, comment.ID)
+	if err := session.CreateInBatches(comments, 1000).Error; err != nil {
+		return err
 	}
 
 	s.logger.Infof("✓ Seeded %d comments", s.count)

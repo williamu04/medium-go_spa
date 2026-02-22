@@ -19,6 +19,7 @@ func NewRetrieveUserUseCase(repository repository.UserRepository) *RetrieveUserU
 
 type RetrieveUserOutput struct {
 	ID       uint
+	Name     string
 	Email    string
 	Username string
 	Bio      string
@@ -37,6 +38,7 @@ func (uc *RetrieveUserUseCase) Execute(ctx context.Context, filter map[string]an
 
 	return &RetrieveUserOutput{
 		ID:       user.ID,
+		Name:     user.Name,
 		Email:    user.Email,
 		Username: user.Username,
 		Bio:      user.Bio,

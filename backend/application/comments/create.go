@@ -33,7 +33,7 @@ type CreateCommentOutput struct {
 }
 
 func (uc *CreateCommentUseCase) Execute(ctx context.Context, input *CreateCommentInput) (*CreateCommentOutput, error) {
-	comment := &model.CommentModel{
+	comment := &model.Comment{
 		Body:      input.Body,
 		AuthorID:  input.AuthorID,
 		ArticleID: input.ArticleID,

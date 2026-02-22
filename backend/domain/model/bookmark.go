@@ -2,10 +2,10 @@ package model
 
 import "gorm.io/gorm"
 
-type BookmarkModel struct {
+type Bookmark struct {
 	gorm.Model
-	Article *ArticleModel
-	ArticleID uint
-	User *UserModel
-	UserID uint
+	Article   *Article
+	ArticleID uint `gorm:"UniqueIndex"`
+	User      *User
+	UserID    uint `gorm:"UniqueIndex"`
 }

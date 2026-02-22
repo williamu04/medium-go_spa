@@ -34,7 +34,7 @@ type CreateTopicOutput struct {
 }
 
 func (uc *CreateTopicUseCase) Execute(ctx context.Context, input *CreateTopicInput) (*CreateTopicOutput, error) {
-	topic := &model.TopicModel{
+	topic := &model.Topic{
 		Topic: input.Topic,
 	}
 

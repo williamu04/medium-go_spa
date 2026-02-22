@@ -2,11 +2,11 @@ package model
 
 import "gorm.io/gorm"
 
-type CommentModel struct {
+type Comment struct {
 	gorm.Model
 	Body      string `gorm:"size:2048"`
-	Article   *ArticleModel
+	Article   *Article
 	ArticleID uint
-	Author    *UserModel
+	Author    *User
 	AuthorID  uint
 }

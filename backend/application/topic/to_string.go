@@ -15,7 +15,7 @@ func NewToStringUseCase(repository repository.TopicRepository) *ToStringUseCase 
 	return &ToStringUseCase{repository: repository}
 }
 
-func (uc *ToStringUseCase) Execute(ctx context.Context, topics []*model.TopicModel) ([]string, error) {
+func (uc *ToStringUseCase) Execute(ctx context.Context, topics []*model.Topic) ([]string, error) {
 	topicStr, err := uc.repository.SetToString(ctx, topics)
 	if err != nil {
 		return nil, err

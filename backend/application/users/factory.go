@@ -14,13 +14,13 @@ type UserUseCase struct {
 	Delete       *DeleteUserUseCase
 }
 
-func NewUserUseCase(repository repository.UserRepository, passwordHasher *pkg.Hasher, tokenGenerator *pkg.JWTGen) *UserUseCase {
+func NewUserUseCase(repository repository.UserRepository, passwordHasher *pkg.Hasher, tokenGenerator *pkg.JWTGen, sluger *pkg.Sluger) *UserUseCase {
 	return &UserUseCase{
-		Registration: NewRegistrationUseCase(repository, *passwordHasher, *tokenGenerator),
+		Registration: NewRegistrationUseCase(repository, *passwordHasher, *tokenGenerator, *sluger),
 		Login:        NewLoginUserUseCase(repository, *passwordHasher, *tokenGenerator),
 		Retrieve:     NewRetrieveUserUseCase(repository),
 		RetrieveAll:  NewRetrieveAllUsersUseCase(repository),
-		Update:       NewUpdateUserUseCase(repository),
+		Update:       NewUpdateUserUseCase(repository, *sluger),
 		Delete:       NewDeleteUserUseCase(repository),
 	}
 }

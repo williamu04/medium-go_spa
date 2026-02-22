@@ -15,15 +15,15 @@ func NewBookmarkDatabaseRepository(db *gorm.DB, logger *pkg.Logger) *DatabaseRep
 	}
 }
 
-func (r *DatabaseRepository) SaveOneBookmark(ctx context.Context, Bookmark *model.BookmarkModel) error {
+func (r *DatabaseRepository) SaveOneBookmark(ctx context.Context, Bookmark *model.Bookmark) error {
 	if err := r.db.WithContext(ctx).Save(Bookmark).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to save Bookmark : %v", err)
 	}
 	return nil
 }
 
-func (r *DatabaseRepository) FindOneBookmark(ctx context.Context, filter map[string]any) (*model.BookmarkModel, error) {
-	var Bookmark model.BookmarkModel
+func (r *DatabaseRepository) FindOneBookmark(ctx context.Context, filter map[string]any) (*model.Bookmark, error) {
+	var Bookmark model.Bookmark
 
 	if err := r.db.WithContext(ctx).Where(filter).First(&Bookmark).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -41,13 +41,13 @@ func (r *DatabaseRepository) FindOneBookmark(ctx context.Context, filter map[str
 	return &Bookmark, nil
 }
 
-func (r *DatabaseRepository) FindAllBookmarks(ctx context.Context, filter map[string]any) ([]*model.BookmarkModel, error) {
-	var Bookmarks []*model.BookmarkModel
+func (r *DatabaseRepository) FindAllBookmarks(ctx context.Context, filter map[string]any) ([]*model.Bookmark, error) {
+	var Bookmarks []*model.Bookmark
 	return Bookmarks, r.db.WithContext(ctx).Where(filter).Find(&Bookmarks).Error
 }
 
 func (r *DatabaseRepository) DeleteBookmark(ctx context.Context, id uint) error {
-	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&model.BookmarkModel{}).Error; err != nil && r.logger != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&model.Bookmark{}).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to delete Bookmark %d: %v", id, err)
 	} else if err == nil && r.logger != nil {
 		r.logger.Debugf("Bookmark deleted %d", id)

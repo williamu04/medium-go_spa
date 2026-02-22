@@ -35,7 +35,7 @@ func (uc *RetrieveArticleUseCase) Execute(ctx context.Context, filter map[string
 		return nil, nil
 	}
 
-	topics, err := uc.topic.SetToString(ctx, article.Topic)
+	topics, err := uc.topic.SetToString(ctx, article.Topics)
 	if err != nil {
 		return nil, err
 	}

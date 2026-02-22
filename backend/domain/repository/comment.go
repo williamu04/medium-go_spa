@@ -7,9 +7,9 @@ import (
 )
 
 type CommentRepository interface {
-	SaveOneComment(ctx context.Context, Comment *model.CommentModel) error
-	FindOneComment(ctx context.Context, filter map[string]any) (*model.CommentModel, error)
-	FindAllComments(ctx context.Context, filter map[string]any) ([]*model.CommentModel, error)
-	UpdateComment(ctx context.Context, Comment *model.CommentModel, id uint) error
+	SaveOneComment(ctx context.Context, Comment *model.Comment) error
+	FindOneComment(ctx context.Context, filter map[string]any) (*model.Comment, error)
+	FindAllComments(ctx context.Context, filter map[string]any) ([]*model.Comment, error)
+	UpdateComment(ctx context.Context, Comment *model.Comment, id uint) error
 	DeleteComment(ctx context.Context, id uint) error
 }

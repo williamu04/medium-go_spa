@@ -39,7 +39,6 @@ func (uc *UpdateArticleUseCase) Execute(ctx context.Context, input *UpdateArticl
 	}
 
 	article, err := uc.repository.FindOneArticle(ctx, map[string]any{"id": ID})
-
 	if err != nil {
 		return err
 	}
@@ -66,7 +65,7 @@ func (uc *UpdateArticleUseCase) Execute(ctx context.Context, input *UpdateArticl
 	}
 
 	if input.Topic != nil {
-		article.Topic = topics
+		article.Topics = topics
 	}
 
 	article.Slug = uc.sluger.Slug(input.Title)

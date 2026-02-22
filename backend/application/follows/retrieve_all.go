@@ -35,7 +35,7 @@ func (uc *RetrieveAllFollowUseCase) Execute(ctx context.Context, filter map[stri
 	}, nil
 }
 
-func mapFollowsToOutputs(Follows []*model.FollowModel) []RetrieveFollowOutput {
+func mapFollowsToOutputs(Follows []*model.Follow) []RetrieveFollowOutput {
 	outputs := make([]RetrieveFollowOutput, len(Follows))
 
 	for i, Follow := range Follows {

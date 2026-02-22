@@ -12,7 +12,7 @@ func NewTopicDatabaseRepository(db *gorm.DB, logger *pkg.Logger) *DatabaseReposi
 	return &DatabaseRepository{db: db, logger: logger}
 }
 
-func (r *DatabaseRepository) SaveOneTopic(ctx context.Context, topic *model.TopicModel) error {
+func (r *DatabaseRepository) SaveOneTopic(ctx context.Context, topic *model.Topic) error {
 	err := r.db.Save(topic).Error
 
 	if err != nil && r.logger != nil {
@@ -22,8 +22,8 @@ func (r *DatabaseRepository) SaveOneTopic(ctx context.Context, topic *model.Topi
 	return err
 }
 
-func (r *DatabaseRepository) FindOneTopic(ctx context.Context, filter map[string]any) (*model.TopicModel, error) {
-	var Topic model.TopicModel
+func (r *DatabaseRepository) FindOneTopic(ctx context.Context, filter map[string]any) (*model.Topic, error) {
+	var Topic model.Topic
 
 	err := r.db.WithContext(ctx).Where(filter).First(&Topic).Error
 	if err != nil {
@@ -41,8 +41,8 @@ func (r *DatabaseRepository) FindOneTopic(ctx context.Context, filter map[string
 	return &Topic, nil
 }
 
-func (r *DatabaseRepository) FindAllTopics(ctx context.Context, slugs []string) ([]*model.TopicModel, error) {
-	var Topics []*model.TopicModel
+func (r *DatabaseRepository) FindAllTopics(ctx context.Context, slugs []string) ([]*model.Topic, error) {
+	var Topics []*model.Topic
 
 	if len(slugs) > 0 {
 		return Topics, r.db.WithContext(ctx).Where("slug IN ?", slugs).Find(&Topics).Error
@@ -51,7 +51,7 @@ func (r *DatabaseRepository) FindAllTopics(ctx context.Context, slugs []string) 
 	return Topics, r.db.WithContext(ctx).Find(&Topics).Error
 }
 
-func (r *DatabaseRepository) SetToString(ctx context.Context, topics []*model.TopicModel) ([]string, error) {
+func (r *DatabaseRepository) SetToString(ctx context.Context, topics []*model.Topic) ([]string, error) {
 	slugs := make([]string, len(topics))
 
 	for i, topic := range topics {
@@ -61,7 +61,7 @@ func (r *DatabaseRepository) SetToString(ctx context.Context, topics []*model.To
 	return slugs, nil
 }
 
-func (r *DatabaseRepository) UpdateTopic(ctx context.Context, topic *model.TopicModel, id uint) error {
+func (r *DatabaseRepository) UpdateTopic(ctx context.Context, topic *model.Topic, id uint) error {
 	err := r.db.Model(topic).Where("id = ?", id).Updates(topic).Error
 
 	if err != nil && r.logger != nil {
@@ -71,7 +71,7 @@ func (r *DatabaseRepository) UpdateTopic(ctx context.Context, topic *model.Topic
 }
 
 func (r *DatabaseRepository) DeleteTopic(ctx context.Context, id uint) error {
-	err := r.db.Where("id = ?", id).Delete(&model.TopicModel{}).Error
+	err := r.db.Where("id = ?", id).Delete(&model.Topic{}).Error
 
 	if err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to delete Topic ID %d: %v", id, err)

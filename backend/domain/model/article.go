@@ -2,19 +2,25 @@ package model
 
 import "gorm.io/gorm"
 
-type ArticleModel struct {
+type Article struct {
 	gorm.Model
 	Slug         string `gorm:"uniqueIndex"`
 	Title        string
 	Description  string `gorm:"size:2048"`
 	Body         string `gorm:"size:2048"`
-	Author       *UserModel
+	Thumbnail    *string
+	Author       *User
 	AuthorID     uint
-	Topic        []*TopicModel    `gorm:"many2many:article_topics;"`
-	Comments     []*CommentModel  `gorm:"ForeignKey:ArticleID;references:ID"`
-	BookmarkedBy []*BookmarkModel `gorm:"ForeignKey:ArticleID"`
+	Topics       []*Topic    `gorm:"many2many:article_topics;"`
+	Comments     []*Comment  `gorm:"ForeignKey:ArticleID"`
+	BookmarkedBy []*Bookmark `gorm:"ForeignKey:ArticleID"`
 }
 
-func (a *ArticleModel) IsTopicValid(topic []string) bool {
+type ArticleTopic struct {
+	ArticleID uint
+	TopicID   uint
+}
+
+func (a *Article) IsTopicValid(topic []string) bool {
 	return len(topic) > 0 && len(topic) <= 5
 }

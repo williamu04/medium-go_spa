@@ -15,15 +15,15 @@ func NewCommentDatabaseRepository(db *gorm.DB, logger *pkg.Logger) *DatabaseRepo
 	}
 }
 
-func (r *DatabaseRepository) SaveOneComment(ctx context.Context, comment *model.CommentModel) error {
+func (r *DatabaseRepository) SaveOneComment(ctx context.Context, comment *model.Comment) error {
 	if err := r.db.WithContext(ctx).Save(comment).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to save comment %s: %v", comment.Body, err)
 	}
 	return nil
 }
 
-func (r *DatabaseRepository) FindOneComment(ctx context.Context, filter map[string]any) (*model.CommentModel, error) {
-	var comment model.CommentModel
+func (r *DatabaseRepository) FindOneComment(ctx context.Context, filter map[string]any) (*model.Comment, error) {
+	var comment model.Comment
 
 	if err := r.db.WithContext(ctx).Where(filter).First(&comment).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -41,12 +41,12 @@ func (r *DatabaseRepository) FindOneComment(ctx context.Context, filter map[stri
 	return &comment, nil
 }
 
-func (r *DatabaseRepository) FindAllComments(ctx context.Context, filter map[string]any) ([]*model.CommentModel, error) {
-	var comments []*model.CommentModel
+func (r *DatabaseRepository) FindAllComments(ctx context.Context, filter map[string]any) ([]*model.Comment, error) {
+	var comments []*model.Comment
 	return comments, r.db.WithContext(ctx).Where(filter).Find(&comments).Error
 }
 
-func (r *DatabaseRepository) UpdateComment(ctx context.Context, comment *model.CommentModel, id uint) error {
+func (r *DatabaseRepository) UpdateComment(ctx context.Context, comment *model.Comment, id uint) error {
 	if err := r.db.WithContext(ctx).Model(comment).Where("id = ?", id).Updates(comment).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to update comment ID %d: %v", id, err)
 	}
@@ -54,7 +54,7 @@ func (r *DatabaseRepository) UpdateComment(ctx context.Context, comment *model.C
 }
 
 func (r *DatabaseRepository) DeleteComment(ctx context.Context, id uint) error {
-	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&model.CommentModel{}).Error; err != nil && r.logger != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&model.Comment{}).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to delete comment %d: %v", id, err)
 	} else if err == nil && r.logger != nil {
 		r.logger.Debugf("Comment deleted %d", id)

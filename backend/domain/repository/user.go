@@ -7,9 +7,9 @@ import (
 )
 
 type UserRepository interface {
-	SaveOneUser(ctx context.Context, user *model.UserModel) error
-	FindOneUser(ctx context.Context, filter map[string]any) (*model.UserModel, error)
-	FindAllUsers(ctx context.Context, filter map[string]any) ([]*model.UserModel, error)
-	UpdateUser(ctx context.Context, user *model.UserModel, id uint) error
+	SaveOneUser(ctx context.Context, user *model.User) error
+	FindOneUser(ctx context.Context, filter map[string]any) (*model.User, error)
+	FindAllUsers(ctx context.Context, filter map[string]any) ([]*model.User, error)
+	UpdateUser(ctx context.Context, user *model.User, id uint) error
 	DeleteUser(ctx context.Context, id uint) error
 }

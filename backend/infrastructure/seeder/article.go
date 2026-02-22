@@ -1,6 +1,7 @@
 package seeder
 
 import (
+	"fmt"
 	"math/rand"
 	"strings"
 
@@ -10,6 +11,7 @@ import (
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type ArticleDataSeeder struct {
@@ -29,57 +31,86 @@ func NewArticleDataSeeder(count int, sluger *pkg.Sluger, db *gorm.DB, logger *pk
 }
 
 func (s *ArticleDataSeeder) Seed() error {
-	// Get all users and topics
-	var users []model.UserModel
-	var topics []model.TopicModel
+	var users []model.User
+	var topics []model.Topic
 
 	if err := s.db.Select("id").Find(&users).Error; err != nil {
-		s.logger.Errorf("failed to fetch users: %v", err)
 		return err
 	}
-	if err := s.db.Select("id, slug").Find(&topics).Error; err != nil {
-		s.logger.Errorf("failed to fetch topics: %v", err)
+	if err := s.db.Select("id").Find(&topics).Error; err != nil {
 		return err
 	}
 
 	if len(users) == 0 || len(topics) == 0 {
-		s.logger.Errorf("insufficient data: users=%d, topics=%d", len(users), len(topics))
+		return fmt.Errorf("insufficient data: users=%d topics=%d", len(users), len(topics))
 	}
 
 	session := s.db.Session(&gorm.Session{
 		SkipDefaultTransaction: true,
+		Logger:                 logger.Default.LogMode(logger.Silent),
 	})
 
-	for i := range s.count {
+	// =====================
+	// 1️⃣ Generate Articles
+	// =====================
+	articles := make([]*model.Article, 0, s.count)
+
+	for i := 0; i < s.count; i++ {
 		title := cases.Title(language.Und).String(faker.Sentence())
-		article := &model.ArticleModel{
+		thumbnail := "https://placehold.co/300x200"
+
+		articles = append(articles, &model.Article{
 			Slug:        s.sluger.Slug(title),
 			Title:       title,
 			Description: faker.Paragraph(),
 			Body:        strings.Repeat(faker.Paragraph()+" ", 3),
+			Thumbnail:   &thumbnail,
 			AuthorID:    users[rand.Intn(len(users))].ID,
-		}
-
-		// Create article without associations first
-		if err := session.Omit("Author", "Topic", "Comments", "BookmarkedBy").Create(article).Error; err != nil {
-			s.logger.Errorf("Create article %d failed: %v", i, err)
-			continue
-		}
-
-		// Assign 1-3 random topics
-		numTopics := rand.Intn(5) + 1
-		selectedTopics := make([]*model.TopicModel, 0, numTopics)
-		for range numTopics {
-			selectedTopics = append(selectedTopics, &topics[rand.Intn(len(topics))])
-		}
-
-		if err := s.db.Model(article).Association("Topic").Append(selectedTopics); err != nil {
-			s.logger.Warnf("Failed to append topics to article %d: %v", article.ID, err)
-		}
-
-		// s.logger.Infof("Created article %d: %s (ID=%d)", i, article.Title, article.ID)
+		})
 	}
 
-	s.logger.Infof("✓ Seeded %d articles", s.count)
+	// =====================
+	// 2️⃣ Bulk Insert Article
+	// =====================
+	if err := session.CreateInBatches(articles, 1000).Error; err != nil {
+		return err
+	}
+
+	// =====================
+	// 3️⃣ Generate Pivot Data
+	// =====================
+	var articleTopics []model.ArticleTopic
+
+	for _, article := range articles {
+
+		numTopics := rand.Intn(3) + 1 // 1-3 topics
+
+		used := make(map[uint]bool)
+
+		for range numTopics {
+			topic := topics[rand.Intn(len(topics))]
+
+			if used[topic.ID] {
+				continue
+			}
+
+			used[topic.ID] = true
+
+			articleTopics = append(articleTopics, model.ArticleTopic{
+				ArticleID: article.ID,
+				TopicID:   topic.ID,
+			})
+		}
+	}
+
+	// =====================
+	// 4️⃣ Bulk Insert Pivot
+	// =====================
+	if err := session.CreateInBatches(articleTopics, 1000).Error; err != nil {
+		return err
+	}
+
+	s.logger.Infof("✓ Seeded %d articles with topics", s.count)
+
 	return nil
 }

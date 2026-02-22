@@ -15,14 +15,14 @@ type SeedHandler struct {
 	logger         *pkg.Logger
 }
 
-func NewSeedHandler(db *gorm.DB, logger *pkg.Logger, hasher *pkg.Hasher, sluger *pkg.Sluger) *SeedHandler {
+func NewSeedHandler(db *gorm.DB, logger *pkg.Logger, hasher *pkg.Hasher, sluger *pkg.Sluger, randomer *pkg.Randomer) *SeedHandler {
 	return &SeedHandler{
-		userSeeder:     NewUserDataSeeder(10, hasher, db, logger),
-		topicSeeder:    NewTopicDataSeeder(20, sluger, db, logger),
-		articleSeeder:  NewArticleDataSeeder(100, sluger, db, logger),
-		commentSeeder:  NewCommentDataSeeder(200, db, logger),
-		bookmarkSeeder: NewBookmarkDataSeeder(150, db, logger),
-		followSeeder:   NewFollowDataSeeder(50, db, logger),
+		userSeeder:     NewUserDataSeeder(1000, hasher, sluger, db, logger),
+		topicSeeder:    NewTopicDataSeeder(200, sluger, db, logger, randomer),
+		articleSeeder:  NewArticleDataSeeder(20000, sluger, db, logger),
+		commentSeeder:  NewCommentDataSeeder(100000, db, logger),
+		bookmarkSeeder: NewBookmarkDataSeeder(400000, db, logger),
+		followSeeder:   NewFollowDataSeeder(100000, db, logger),
 		logger:         logger,
 	}
 }
@@ -31,6 +31,11 @@ func (s *SeedHandler) SeedAll() error {
 	// URUTAN PENTING: Users & Topics dulu (independent)
 	if err := s.userSeeder.Seed(); err != nil {
 		s.logger.Errorf("user seeding failed: %v", err)
+		return err
+	}
+
+	if err := s.followSeeder.Seed(); err != nil {
+		s.logger.Errorf("follow seeding failed: %v", err)
 		return err
 	}
 
@@ -45,23 +50,17 @@ func (s *SeedHandler) SeedAll() error {
 		return err
 	}
 
-	// Comments butuh Users & Articles
-	if err := s.commentSeeder.Seed(); err != nil {
-		s.logger.Errorf("comment seeding failed: %v", err)
-		return err
-	}
-
 	// Bookmarks & Follows bisa parallel (keduanya butuh Users & Articles)
 	if err := s.bookmarkSeeder.Seed(); err != nil {
 		s.logger.Errorf("bookmark seeding failed: %v", err)
 		return err
 	}
 
-	if err := s.followSeeder.Seed(); err != nil {
-		s.logger.Errorf("follow seeding failed: %v", err)
+	// Comments butuh Users & Articles
+	if err := s.commentSeeder.Seed(); err != nil {
+		s.logger.Errorf("comment seeding failed: %v", err)
 		return err
 	}
-
 	s.logger.Info("🎉 All data seeded successfully!")
 	return nil
 }

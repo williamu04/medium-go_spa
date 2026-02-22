@@ -11,14 +11,16 @@ type ArticleUseCase struct {
 	RetrieveAll *RetrieveAllArticleUseCase
 	Update      *UpdateArticleUseCase
 	Delete      *DeleteArticleUseCase
+	Feed        *FeedArticleUseCase
 }
 
-func NewArticleUseCase(repository repository.ArticleRepository, topic repository.TopicRepository, sluger *pkg.Sluger) *ArticleUseCase {
+func NewArticleUseCase(repository repository.ArticleRepository, topic repository.TopicRepository, user repository.UserRepository, comment repository.CommentRepository, bookmark repository.BookmarkRepository, sluger *pkg.Sluger) *ArticleUseCase {
 	return &ArticleUseCase{
 		Create:      NewCreateArticleUseCase(repository, topic, sluger),
 		Retrieve:    NewRetrieveArticleUseCase(repository, topic),
 		RetrieveAll: NewRetrieveAllArticlesUseCase(repository, topic),
 		Update:      NewUpdateArticleUseCase(repository, topic, sluger),
 		Delete:      NewDeleteArticleUseCase(repository),
+		Feed:        NewFeedArticleUseCase(repository, user, comment, bookmark),
 	}
 }

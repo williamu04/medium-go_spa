@@ -18,6 +18,7 @@ type ArticleRestAPIHandler struct {
 	articleRetrieveAllUseCase *articleapplication.RetrieveAllArticleUseCase
 	articleUpdateUseCase      *articleapplication.UpdateArticleUseCase
 	articleDeleteUseCase      *articleapplication.DeleteArticleUseCase
+	articleFeedUseCase        *articleapplication.FeedArticleUseCase
 	authMiddleware            *middleware.AuthMiddleware
 }
 
@@ -33,6 +34,7 @@ func NewArticleRestAPIHandler(
 		articleRetrieveAllUseCase: useCase.RetrieveAll,
 		articleUpdateUseCase:      useCase.Update,
 		articleDeleteUseCase:      useCase.Delete,
+		articleFeedUseCase:        useCase.Feed,
 		authMiddleware:            auth,
 	}
 }

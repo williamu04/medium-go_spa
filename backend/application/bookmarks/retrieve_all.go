@@ -35,7 +35,7 @@ func (uc *RetrieveAllBookmarkUseCase) Execute(ctx context.Context, filter map[st
 	}, nil
 }
 
-func mapBookmarksToOutputs(bookmarks []*model.BookmarkModel) []RetrieveBookmarkOutput {
+func mapBookmarksToOutputs(bookmarks []*model.Bookmark) []RetrieveBookmarkOutput {
 	outputs := make([]RetrieveBookmarkOutput, len(bookmarks))
 
 	for i, bookmark := range bookmarks {

@@ -55,12 +55,11 @@ func (uc *CreateArticleUseCase) Execute(ctx context.Context, input *CreateArticl
 		return nil, domain.ErrTopicNotFound
 	}
 
-	article := &model.ArticleModel{
+	article := &model.Article{
 		Title:       input.Title,
 		Description: input.Description,
 		Body:        input.Body,
 		AuthorID:    input.AuthorID,
-		Topic:       topics,
 	}
 
 	article.Slug = uc.sluger.Slug(input.Title)

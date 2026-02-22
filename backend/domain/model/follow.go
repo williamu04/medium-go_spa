@@ -2,10 +2,10 @@ package model
 
 import "gorm.io/gorm"
 
-type FollowModel struct {
+type Follow struct {
 	gorm.Model
-	Following    *UserModel
-	FollowingID  uint
-	FollowedBy   *UserModel
-	FollowedByID uint
+	Following    *User
+	FollowingID  uint `gorm:"UniqueIndex"`
+	FollowedBy   *User
+	FollowedByID uint `gorm:"UniqueIndex"`
 }

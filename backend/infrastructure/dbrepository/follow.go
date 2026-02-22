@@ -15,15 +15,15 @@ func NewFollowDatabaseRepository(db *gorm.DB, logger *pkg.Logger) *DatabaseRepos
 	}
 }
 
-func (r *DatabaseRepository) SaveOneFollow(ctx context.Context, Follow *model.FollowModel) error {
+func (r *DatabaseRepository) SaveOneFollow(ctx context.Context, Follow *model.Follow) error {
 	if err := r.db.WithContext(ctx).Save(Follow).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to save Follow : %v", err)
 	}
 	return nil
 }
 
-func (r *DatabaseRepository) FindOneFollow(ctx context.Context, filter map[string]any) (*model.FollowModel, error) {
-	var Follow model.FollowModel
+func (r *DatabaseRepository) FindOneFollow(ctx context.Context, filter map[string]any) (*model.Follow, error) {
+	var Follow model.Follow
 
 	if err := r.db.WithContext(ctx).Where(filter).First(&Follow).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -41,13 +41,13 @@ func (r *DatabaseRepository) FindOneFollow(ctx context.Context, filter map[strin
 	return &Follow, nil
 }
 
-func (r *DatabaseRepository) FindAllFollows(ctx context.Context, filter map[string]any) ([]*model.FollowModel, error) {
-	var Follows []*model.FollowModel
+func (r *DatabaseRepository) FindAllFollows(ctx context.Context, filter map[string]any) ([]*model.Follow, error) {
+	var Follows []*model.Follow
 	return Follows, r.db.WithContext(ctx).Where(filter).Find(&Follows).Error
 }
 
 func (r *DatabaseRepository) DeleteFollow(ctx context.Context, id uint) error {
-	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&model.FollowModel{}).Error; err != nil && r.logger != nil {
+	if err := r.db.WithContext(ctx).Where("id = ?", id).Delete(&model.Follow{}).Error; err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to delete Follow %d: %v", id, err)
 	} else if err == nil && r.logger != nil {
 		r.logger.Debugf("Follow deleted %d", id)

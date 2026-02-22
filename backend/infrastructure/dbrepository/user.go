@@ -12,7 +12,7 @@ func NewUserDatabaseRepository(db *gorm.DB, logger *pkg.Logger) *DatabaseReposit
 	return &DatabaseRepository{db: db, logger: logger}
 }
 
-func (r *DatabaseRepository) SaveOneUser(ctx context.Context, user *model.UserModel) error {
+func (r *DatabaseRepository) SaveOneUser(ctx context.Context, user *model.User) error {
 	err := r.db.Save(user).Error
 	if err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to save user %s: %v", user.Username, err)
@@ -20,8 +20,8 @@ func (r *DatabaseRepository) SaveOneUser(ctx context.Context, user *model.UserMo
 	return err
 }
 
-func (r *DatabaseRepository) FindOneUser(ctx context.Context, filter map[string]any) (*model.UserModel, error) {
-	var user model.UserModel
+func (r *DatabaseRepository) FindOneUser(ctx context.Context, filter map[string]any) (*model.User, error) {
+	var user model.User
 	err := r.db.WithContext(ctx).Where(filter).First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -38,12 +38,12 @@ func (r *DatabaseRepository) FindOneUser(ctx context.Context, filter map[string]
 	return &user, nil
 }
 
-func (r *DatabaseRepository) FindAllUsers(ctx context.Context, filter map[string]any) ([]*model.UserModel, error) {
-	var users []*model.UserModel
+func (r *DatabaseRepository) FindAllUsers(ctx context.Context, filter map[string]any) ([]*model.User, error) {
+	var users []*model.User
 	return users, r.db.Where(filter).Find(&users).Error
 }
 
-func (r *DatabaseRepository) UpdateUser(ctx context.Context, user *model.UserModel, id uint) error {
+func (r *DatabaseRepository) UpdateUser(ctx context.Context, user *model.User, id uint) error {
 	err := r.db.Model(user).Where("id = ?", id).Updates(user).Error
 	if err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to update user ID %d: %v", id, err)
@@ -52,7 +52,7 @@ func (r *DatabaseRepository) UpdateUser(ctx context.Context, user *model.UserMod
 }
 
 func (r *DatabaseRepository) DeleteUser(ctx context.Context, id uint) error {
-	err := r.db.Where("id = ?", id).Delete(&model.UserModel{}).Error
+	err := r.db.Where("id = ?", id).Delete(&model.User{}).Error
 	if err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to delete user ID %d: %v", id, err)
 	} else if err == nil && r.logger != nil {
