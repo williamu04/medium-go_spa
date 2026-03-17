@@ -23,6 +23,7 @@ type CreateCommentInput struct {
 	Body      string
 	ArticleID uint
 	AuthorID  uint
+	ParentID  *uint
 }
 
 type CreateCommentOutput struct {
@@ -30,6 +31,7 @@ type CreateCommentOutput struct {
 	Body      string
 	ArticleID uint
 	AuthorID  uint
+	ParentID  *uint
 }
 
 func (uc *CreateCommentUseCase) Execute(ctx context.Context, input *CreateCommentInput) (*CreateCommentOutput, error) {
@@ -37,6 +39,7 @@ func (uc *CreateCommentUseCase) Execute(ctx context.Context, input *CreateCommen
 		Body:      input.Body,
 		AuthorID:  input.AuthorID,
 		ArticleID: input.ArticleID,
+		ParentID:  input.ParentID,
 	}
 
 	if err := uc.repository.SaveOneComment(ctx, comment); err != nil {
@@ -48,5 +51,6 @@ func (uc *CreateCommentUseCase) Execute(ctx context.Context, input *CreateCommen
 		Body:      comment.Body,
 		AuthorID:  comment.AuthorID,
 		ArticleID: comment.ArticleID,
+		ParentID:  comment.ParentID,
 	}, nil
 }

@@ -10,9 +10,9 @@ export const SideBar = () => {
 
   const menus = [
     { name: "Home", icon: LuHouse, href: "/" },
-    { name: "Library", icon: LuBookmark, href: "/library" },
+    { name: "Library", icon: LuBookmark, href: "/lists" },
     { name: "Profile", icon: LuUserRound, href: "/profile" },
-    { name: "Stories", icon: LuFileText, href: "/stories" },
+    { name: "Stories", icon: LuFileText, href: "/articles" },
     { name: "Following", icon: LuUsersRound, href: "/following" },
   ]
 

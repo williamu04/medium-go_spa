@@ -1,3 +1,4 @@
+import { HomeRightBar } from "@/components/layout/HomeRightBar"
 import { SideBar } from "@/components/layout/sidebar"
 import { TopBar } from "@/components/layout/topbar"
 import { Box, Flex } from "@chakra-ui/react"
@@ -16,6 +17,7 @@ const HomeLayout = ({
         <Box flex={"1"} overflowY={"auto"}>
           {children}
         </Box>
+        <HomeRightBar />
       </Flex>
     </Flex>
   );

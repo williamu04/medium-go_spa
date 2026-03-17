@@ -28,12 +28,12 @@ func (r *DatabaseRepository) FindOneComment(ctx context.Context, filter map[stri
 	if err := r.db.WithContext(ctx).Where(filter).First(&comment).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			if r.logger != nil {
-				r.logger.Debugf("Article not found with filter: %v", filter)
+				r.logger.Debugf("Comment not found with filter: %v", filter)
 			}
 			return nil, nil
 		}
 		if r.logger != nil {
-			r.logger.Errorf("Database error finding article with filter %v: %v", filter, err)
+			r.logger.Errorf("Database error finding comment with filter %v: %v", filter, err)
 		}
 		return nil, err
 	}

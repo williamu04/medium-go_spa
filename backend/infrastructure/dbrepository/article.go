@@ -29,7 +29,7 @@ func (r *DatabaseRepository) SaveOneArticle(ctx context.Context, article *model.
 func (r *DatabaseRepository) FindOneArticle(ctx context.Context, filter map[string]any) (*model.Article, error) {
 	var article model.Article
 
-	err := r.db.WithContext(ctx).Preload("Topic").Where(filter).First(&article).Error
+	err := r.db.WithContext(ctx).Preload("Topics").Where(filter).First(&article).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
 			if r.logger != nil {
@@ -47,7 +47,7 @@ func (r *DatabaseRepository) FindOneArticle(ctx context.Context, filter map[stri
 
 func (r *DatabaseRepository) FindAllArticles(ctx context.Context, filter map[string]any) ([]*model.Article, error) {
 	var articles []*model.Article
-	return articles, r.db.Where(filter).Preload("Topic").Find(&articles).Error
+	return articles, r.db.Where(filter).Preload("Topics").Find(&articles).Error
 }
 
 func (r *DatabaseRepository) FeedArticles(
@@ -81,7 +81,7 @@ func (r *DatabaseRepository) FeedArticles(
 		GROUP BY article_id
 	) b ON b.article_id = a.id
 
-	ORDER BY a.created_at DESC
+	ORDER BY b.bookmark_count DESC
 	LIMIT $1
 	`
 
@@ -93,7 +93,7 @@ func (r *DatabaseRepository) FeedArticles(
 }
 
 func (r *DatabaseRepository) UpdateArticle(ctx context.Context, article *model.Article, id uint) error {
-	err := r.db.Model(article).Where("id = ?", id).Preload("Topic").Updates(article).Error
+	err := r.db.Model(article).Where("id = ?", id).Preload("Topics").Updates(article).Error
 
 	if err != nil && r.logger != nil {
 		r.logger.Errorf("Failed to update article ID %d: %v", id, err)

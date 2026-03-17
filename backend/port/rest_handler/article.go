@@ -41,6 +41,7 @@ func NewArticleRestAPIHandler(
 
 func (h *ArticleRestAPIHandler) RegisterArticleRoutes(router *gin.RouterGroup) {
 	router.GET("/:id", h.ArticleRetrieve)
+	router.GET("/feed", h.ArticleFeed)
 
 	protected := router.Group("")
 	protected.Use(h.authMiddleware.Auth())
@@ -100,6 +101,16 @@ func (h *ArticleRestAPIHandler) ArticleCreate(c *gin.Context) {
 	}
 
 	pkg.Success(c, http.StatusCreated, res)
+}
+
+func (h *ArticleRestAPIHandler) ArticleFeed(c *gin.Context) {
+	output, err := h.articleFeedUseCase.Execute(c, 10)
+	if err != nil {
+		h.logger.Errorf("Error feeding articles: %v", err)
+		pkg.Error(c, http.StatusInternalServerError, "Error seeding articles")
+	}
+
+	pkg.Success(c, http.StatusOK, output.Articles)
 }
 
 func (h *ArticleRestAPIHandler) ArticleRetrieve(c *gin.Context) {

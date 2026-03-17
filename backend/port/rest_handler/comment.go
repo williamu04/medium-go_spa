@@ -39,12 +39,15 @@ func NewcommentRestAPIHandler(
 
 func (h *CommentRestAPIHandler) RegisterCommentRoutes(router *gin.RouterGroup) {
 	router.GET("/:id", h.CommentRetrieve)
+
+	router.GET("/:article_id", h.CommentRetrieveAllOneArticle)
+
 	protected := router.Group("")
 	protected.Use(h.authMiddleware.Auth())
 	protected.POST("/create/:article_id", h.CommentCreate)
 	protected.PUT("/:id", h.CommentUpdate)
 	protected.DELETE("/:id", h.CommentDelete)
-	protected.GET("/all", h.CommentRetrieveAll)
+	protected.GET("/all/me", h.CommentRetrieveAllOneUser)
 }
 
 func (h *CommentRestAPIHandler) CommentCreate(c *gin.Context) {
@@ -59,7 +62,6 @@ func (h *CommentRestAPIHandler) CommentCreate(c *gin.Context) {
 	idStr := c.Param("article_id")
 
 	article_id, err := strconv.ParseUint(idStr, 10, 32)
-
 	if err != nil {
 		h.logger.Warnf("Retrieve: invalid Article ID format - %s", idStr)
 		pkg.Error(c, http.StatusBadRequest, "Invalid Comment ID")
@@ -87,7 +89,6 @@ func (h *CommentRestAPIHandler) CommentCreate(c *gin.Context) {
 		AuthorID:  authorID,
 		ArticleID: uint(article_id),
 	})
-
 	if err != nil {
 		h.logger.Errorf("Creatioin failed for Comment %s", req.Body)
 	}
@@ -106,7 +107,6 @@ func (h *CommentRestAPIHandler) CommentRetrieve(c *gin.Context) {
 	idStr := c.Param("id")
 
 	id, err := strconv.ParseUint(idStr, 10, 32)
-
 	if err != nil {
 		h.logger.Warnf("Retrieve: invalid Comment ID format - %s", idStr)
 		pkg.Error(c, http.StatusBadRequest, "Invalid Comment ID")
@@ -134,7 +134,7 @@ func (h *CommentRestAPIHandler) CommentRetrieve(c *gin.Context) {
 	pkg.Success(c, http.StatusOK, res)
 }
 
-func (h *CommentRestAPIHandler) CommentRetrieveAll(c *gin.Context) {
+func (h *CommentRestAPIHandler) CommentRetrieveAllOneUser(c *gin.Context) {
 	h.logger.Infof("Retrieve all Comments attempt")
 
 	userID, ok := c.Get("user_id")
@@ -145,6 +145,30 @@ func (h *CommentRestAPIHandler) CommentRetrieveAll(c *gin.Context) {
 	}
 
 	output, err := h.commentRetrieveAllUseCase.Execute(c.Request.Context(), map[string]any{"author_id": userID.(uint)})
+	if err != nil {
+		h.logger.Errorf("Retrieve all Comments failed: %v", err)
+		pkg.Error(c, http.StatusInternalServerError, "Failed to retrieve Comments")
+		return
+	}
+
+	h.logger.Infof("Comments retrieved successfully: %d Comments found", len(output.Comments))
+
+	pkg.Success(c, http.StatusOK, output.Comments)
+}
+
+func (h *CommentRestAPIHandler) CommentRetrieveAllOneArticle(c *gin.Context) {
+	idStr := c.Param("article_id")
+
+	articleID, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		h.logger.Warnf("Retrieve: invalid Article ID format - %s", idStr)
+		pkg.Error(c, http.StatusBadRequest, "Invalid Article ID")
+		return
+	}
+
+	h.logger.Infof("Retrieve all Comments attempt")
+
+	output, err := h.commentRetrieveAllUseCase.Execute(c.Request.Context(), map[string]any{"article_id": articleID})
 	if err != nil {
 		h.logger.Errorf("Retrieve all Comments failed: %v", err)
 		pkg.Error(c, http.StatusInternalServerError, "Failed to retrieve Comments")
@@ -168,7 +192,6 @@ func (h *CommentRestAPIHandler) CommentUpdate(c *gin.Context) {
 	}
 
 	id, err := strconv.ParseUint(idStr, 10, 32)
-
 	if err != nil {
 		h.logger.Warnf("Update: invalid Comment ID format - %s", idStr)
 		pkg.Error(c, http.StatusBadRequest, "Invalid Comment ID")

@@ -21,7 +21,6 @@ type RetrieveAllCommentOutput struct {
 
 func (uc *RetrieveAllCommentUseCase) Execute(ctx context.Context, filter map[string]any) (*RetrieveAllCommentOutput, error) {
 	comments, err := uc.repository.FindAllComments(ctx, filter)
-
 	if err != nil {
 		return nil, err
 	}
@@ -44,6 +43,7 @@ func mapCommentsToOutputs(comments []*model.Comment) []RetrieveCommentOutput {
 			Body:      comment.Body,
 			AuthorID:  comment.AuthorID,
 			ArticleID: comment.ArticleID,
+			ParentID:  comment.ParentID,
 		}
 	}
 	return outputs

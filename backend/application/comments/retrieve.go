@@ -19,6 +19,7 @@ type RetrieveCommentOutput struct {
 	Body      string
 	AuthorID  uint
 	ArticleID uint
+	ParentID  *uint
 }
 
 func (uc *RetrieveCommentUseCase) Execute(ctx context.Context, filter map[string]any) (*RetrieveCommentOutput, error) {
@@ -36,5 +37,6 @@ func (uc *RetrieveCommentUseCase) Execute(ctx context.Context, filter map[string
 		Body:      comment.Body,
 		AuthorID:  comment.AuthorID,
 		ArticleID: comment.ArticleID,
+		ParentID:  comment.ParentID,
 	}, nil
 }
